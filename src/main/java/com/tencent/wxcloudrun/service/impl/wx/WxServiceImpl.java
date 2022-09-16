@@ -4,6 +4,7 @@ import com.tencent.wxcloudrun.constant.WxConstant;
 import com.tencent.wxcloudrun.controller.WxController;
 import com.tencent.wxcloudrun.dto.wx.WxEntranceRequest;
 import com.tencent.wxcloudrun.dto.wx.WxEntranceResponse;
+import com.tencent.wxcloudrun.service.aes.AesException;
 import com.tencent.wxcloudrun.service.aes.WXBizMsgCrypt;
 import com.tencent.wxcloudrun.service.wx.WxEventEntranceService;
 import com.tencent.wxcloudrun.service.wx.WxService;
@@ -28,6 +29,7 @@ public class WxServiceImpl implements WxService {
 
     @Autowired
     private WxEventEntranceService wxEventEntranceService;
+
     /**
      * 微信公众平台消息和事件推送接收服务
      * 微信服务器在五秒内收不到响应会断掉连接，并且重新发起请求，总共重试三次
@@ -50,7 +52,7 @@ public class WxServiceImpl implements WxService {
      * @return 如果获得只需要返回 SUCCESS
      */
     @Override
-    public String event(String signature, String timestamp, String nonce, String echostr, String encryptType, String msgSignature, String openid, String postData) {
+    public String event(String signature, String timestamp, String nonce, String echostr, String encryptType, String msgSignature, String openid, String postData) throws AesException {
         LOGGER.info("【微信公众平台消息事件接收服务】请求参数：signature：【{}】，timestamp：【{}】，nonce：【{}】，echostr：【{}】，encryptType：【{}】，msgSignature：【{}】，openid：【{}】，postData：【{}】", signature, timestamp, nonce, echostr, encryptType, msgSignature, openid, postData);
 
         //1.配置url验证
@@ -60,33 +62,30 @@ public class WxServiceImpl implements WxService {
         }
 
         //2.接收事件消息
-        try {
-            //方式一
-            //假如服务器无法保证在五秒内处理并回复，必须做出下述回复，这样微信服务器才不会对此作任何处理，并且不会发起重试（这种情况下，可以使用客服消息接口进行异步回复），否则，将出现严重的错误提示。
-            //1、直接回复success（推荐方式） 2、直接回复空串（指字节长度为0的空字符串，而不是XML结构体中content字段的内容为空）
-            //测试中3秒故障提示，“该公众号暂时无法提供服务，请稍后再试”，直接返回"success"，无异常
-            //if (true) {
-            //    return "success";
-            //}
 
-            //方式二：正常返回，超时会提示用户：该公众号提供的服务出现故障，请稍后再试
-            //这个类是微信官网提供的解密类,需要用到消息校验Token 消息加密Key和服务平台appid
-            WXBizMsgCrypt pc = new WXBizMsgCrypt(MP_TOKEN, MP_ENCODING_AES_KEY, APP_ID);
-            //加密模式：需要解密
-            String xml = pc.decryptMsg(msgSignature, timestamp, nonce, postData);
+        //方式一
+        //假如服务器无法保证在五秒内处理并回复，必须做出下述回复，这样微信服务器才不会对此作任何处理，并且不会发起重试（这种情况下，可以使用客服消息接口进行异步回复），否则，将出现严重的错误提示。
+        //1、直接回复success（推荐方式） 2、直接回复空串（指字节长度为0的空字符串，而不是XML结构体中content字段的内容为空）
+        //测试中3秒故障提示，“该公众号暂时无法提供服务，请稍后再试”，直接返回"success"，无异常
+        //if (true) {
+        //    return "success";
+        //}
 
-            WxEntranceRequest request = new WxEntranceRequest ();
-            request.setVerifyUrlFlag("0");
-            request.setData(xml);
-            WxEntranceResponse response = wxEventEntranceService.executeNews(request);
-            LOGGER.info("【微信公众平台消息事件接收服务】解密后消息：【{}】", xml);
+        //方式二：正常返回，超时会提示用户：该公众号提供的服务出现故障，请稍后再试
+        //这个类是微信官网提供的解密类,需要用到消息校验Token 消息加密Key和服务平台appid
+        WXBizMsgCrypt pc = new WXBizMsgCrypt(MP_TOKEN, MP_ENCODING_AES_KEY, APP_ID);
+        //加密模式：需要解密
+        String xml = pc.decryptMsg(msgSignature, timestamp, nonce, postData);
+
+        WxEntranceRequest request = new WxEntranceRequest();
+        request.setVerifyUrlFlag("0");
+        request.setData(xml);
+        WxEntranceResponse response = wxEventEntranceService.executeNews(request);
+        LOGGER.info("【微信公众平台消息事件接收服务】解密后消息：【{}】", xml);
 
 
-            LOGGER.info("【微信公众平台消息事件接收服务成功】消息回复：{}", response.getResult());
-            return response.getResult();
-        } catch (Exception e) {
-            LOGGER.info("【微信公众平台消息事件接收服务】事件接收异常：", e);
-            return WxConstant.SUCCESS;
-        }
+        LOGGER.info("【微信公众平台消息事件接收服务成功】消息回复：{}", response.getResult());
+        return response.getResult();
+
     }
 }

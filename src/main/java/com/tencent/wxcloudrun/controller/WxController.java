@@ -1,5 +1,7 @@
 package com.tencent.wxcloudrun.controller;
 
+import com.tencent.wxcloudrun.constant.WxConstant;
+import com.tencent.wxcloudrun.service.aes.AesException;
 import com.tencent.wxcloudrun.service.wx.WxService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +26,7 @@ public class WxController {
      * 调用接口的IP地址不在白名单中，请在接口IP白名单中进行设置。
      * <p>
      * 测试号地址配置
-     * 公众号-开发工具-公众平台测试账号-测试号管理-接口配置信息(URL)：http://zrj.free.idcfengye.com/wechat/token/event
+     * 公众号-开发工具-公众平台测试账号-测试号管理-接口配置信息(URL)：http://zrj.free.idcfengye.com/wx/qzcgt/event
      * https://mp.weixin.qq.com/debug/cgi-bin/sandboxinfo?action=showinfo&t=sandbox/index
      *
      * @param signature    微信加密签名，signature结合了开发者填写的token参数和请求中的timestamp参数、nonce参数
@@ -49,7 +51,13 @@ public class WxController {
         long beginTime = System.currentTimeMillis();
         LOGGER.info("event begin");
 
-        String result = wxService.event(signature, timestamp, nonce, echostr, encryptType, msgSignature, openid, postData);
+        String result = null;
+        try {
+            result = wxService.event(signature, timestamp, nonce, echostr, encryptType, msgSignature, openid, postData);
+        } catch (AesException e) {
+            LOGGER.error("event error", e);
+            result = WxConstant.SUCCESS;
+        }
 
 
         long endTime = System.currentTimeMillis();

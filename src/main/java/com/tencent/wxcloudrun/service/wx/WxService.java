@@ -1,5 +1,7 @@
 package com.tencent.wxcloudrun.service.wx;
 
+import com.tencent.wxcloudrun.service.aes.AesException;
+
 public interface WxService {
     /**
      * 微信公众平台消息和事件推送接收服务
@@ -11,6 +13,6 @@ public interface WxService {
      * @param postData  消息体
      * @return 如果获得只需要返回 SUCCESS
      */
-    public String event(String signature, String timestamp, String nonce, String echostr, String encryptType, String msgSignature, String openid, String postData);
+    public String event(String signature, String timestamp, String nonce, String echostr, String encryptType, String msgSignature, String openid, String postData) throws AesException;
 
 }
