@@ -18,5 +18,3 @@ server:
 logging:
   # 设置logback.xml位置
   config: classpath:log/logback.xml
-
-num: 111
