@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Calendar;
 import java.util.Map;
 
 @Service
@@ -84,8 +85,10 @@ public class WxServiceImpl implements WxService {
         LOGGER.info("【微信公众平台消息事件接收服务】解密后消息：【{}】", xml);
 
 
-        LOGGER.info("【微信公众平台消息事件接收服务成功】消息回复：{}", response.getResult());
-        return response.getResult();
+        LOGGER.info("【微信公众平台消息事件接收服务成功】消息回复 原文：{}", response.getResult());
+        String returnResult = pc.encryptMsg(response.getResult(), String.valueOf(Calendar.getInstance().getTimeInMillis()), nonce);
+        LOGGER.info("【微信公众平台消息事件接收服务成功】消息回复 密文：{}", response.getResult());
+        return returnResult;
 
     }
 }
