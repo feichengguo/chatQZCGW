@@ -1,5 +1,6 @@
 package com.tencent.wxcloudrun.service.wx;
 
+import com.tencent.wxcloudrun.model.WxUserInfo;
 import com.tencent.wxcloudrun.service.aes.AesException;
 
 public interface WxService {
@@ -19,4 +20,11 @@ public interface WxService {
      * 微信公众平台获取AccessToken
      */
     public String getAccessToken();
+
+    /**
+     * 获取用户信息
+     * @param openId
+     * @return
+     */
+    public WxUserInfo getUserInfo(String openId,  String token);
 }

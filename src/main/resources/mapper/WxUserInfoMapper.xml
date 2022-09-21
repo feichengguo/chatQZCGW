@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tencent.wxcloudrun.dao.WxUserInfoMapper">
+
+    <resultMap id="BaseResultMap" type="com.tencent.wxcloudrun.model.WxUserInfo">
+        <result column="id" property="id"/>
+        <result column="platform" property="platform"/>
+        <result column="app_type" property="appType"/>
+        <result column="open_id" property="openId"/>
+        <result column="union_id" property="unionId"/>
+        <result column="subscribe" property="subscribe"/>
+        <result column="language" property="language"/>
+        <result column="groupid" property="groupid"/>
+        <result column="subscribe_time" property="subscribeTime"/>
+        <result column="remark" property="remark"/>
+        <result column="tagid_list" property="tagidList"/>
+        <result column="subscribe_scene" property="subscribeScene"/>
+        <result column="created" property="created"/>
+        <result column="updated" property="updated"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id
+        ,
+                platform,
+                app_type,
+                open_id,
+                union_id,
+                subscribe,
+                language,
+                groupid,
+                subscribe_time,
+                remark,
+                tagid_list,
+                subscribe_scene,
+                created,
+                updated
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id"
+            parameterType="com.tencent.wxcloudrun.model.WxUserInfo">
+        INSERT INTO wx_user_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="null != platform and '' != platform">
+                platform,
+            </if>
+            <if test="null != appType and '' != appType">
+                app_type,
+            </if>
+            <if test="null != openId and '' != openId">
+                open_id,
+            </if>
+            <if test="null != unionId and '' != unionId">
+                union_id,
+            </if>
+            <if test="null != subscribe ">
+                subscribe,
+            </if>
+            <if test="null != language and '' != language">
+                language,
+            </if>
+            <if test="null != groupid and '' != groupid">
+                groupid,
+            </if>
+            <if test="null != subscribeTime and '' != subscribeTime">
+                subscribe_time,
+            </if>
+            <if test="null != remark and '' != remark">
+                remark,
+            </if>
+            <if test="null != tagidList and '' != tagidList">
+                tagid_list,
+            </if>
+            <if test="null != subscribeScene and '' != subscribeScene">
+                subscribe_scene,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="null != platform and '' != platform">
+                #{platform},
+            </if>
+            <if test="null != appType and '' != appType">
+                #{appType},
+            </if>
+            <if test="null != openId and '' != openId">
+                #{openId},
+            </if>
+            <if test="null != unionId and '' != unionId">
+                #{unionId},
+            </if>
+            <if test="null != subscribe ">
+                #{subscribe},
+            </if>
+            <if test="null != language and '' != language">
+                #{language},
+            </if>
+            <if test="null != groupid and '' != groupid">
+                #{groupid},
+            </if>
+            <if test="null != subscribeTime">
+                #{subscribeTime},
+            </if>
+            <if test="null != remark and '' != remark">
+                #{remark},
+            </if>
+            <if test="null != tagidList and '' != tagidList">
+                #{tagidList},
+            </if>
+            <if test="null != subscribeScene and '' != subscribeScene">
+                #{subscribeScene},
+            </if>
+        </trim>
+    </insert>
+
+    <delete id="delete">
+        DELETE
+        FROM wx_user_info
+        WHERE id = #{id}
+    </delete>
+
+    <update id="updateById" parameterType="com.tencent.wxcloudrun.model.WxUserInfo">
+        UPDATE wx_user_info
+        <set>
+            <if test="null != platform and '' != platform">platform = #{platform},</if>
+            <if test="null != appType and '' != appType">app_type = #{appType},</if>
+            <if test="null != openId and '' != openId">open_id = #{openId},</if>
+            <if test="null != unionId and '' != unionId">union_id = #{unionId},</if>
+            <if test="null != subscribe ">subscribe = #{subscribe},</if>
+            <if test="null != language and '' != language">language = #{language},</if>
+            <if test="null != groupid and '' != groupid">groupid = #{groupid},</if>
+            <if test="null != subscribeTime ">subscribe_time = #{subscribeTime,jdbcType=TIMESTAMP},</if>
+            <if test="null != remark and '' != remark">remark = #{remark},</if>
+            <if test="null != tagidList and '' != tagidList">tagid_list = #{tagidList},</if>
+            <if test="null != subscribeScene and '' != subscribeScene">subscribe_scene = #{subscribeScene},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+
+    <select id="load" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM wx_user_info
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByUnionKey" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM wx_user_info
+        WHERE platform = #{platform} and app_type = #{appType} and open_id = #{openId}
+    </select>
+
+</mapper>

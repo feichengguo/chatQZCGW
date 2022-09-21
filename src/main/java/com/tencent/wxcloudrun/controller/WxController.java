@@ -1,6 +1,9 @@
 package com.tencent.wxcloudrun.controller;
 
+import com.tencent.wxcloudrun.Enum.WxZghEnum;
+import com.tencent.wxcloudrun.config.ThreadLocalConfig;
 import com.tencent.wxcloudrun.constant.WxConstant;
+import com.tencent.wxcloudrun.dto.ContextInfo;
 import com.tencent.wxcloudrun.service.aes.AesException;
 import com.tencent.wxcloudrun.service.wx.WxService;
 import org.slf4j.Logger;
@@ -12,12 +15,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-@RequestMapping("/wx/qzcgt")
+@RequestMapping("/wx/gzh")
 public class WxController {
     private static final Logger LOGGER = LoggerFactory.getLogger(WxController.class);
 
     @Autowired
     private WxService wxService;
+    @Autowired
+    ThreadLocalConfig threadLocalConfig;
 
     /**
      * 微信公众平台服务器地址URL服务
@@ -39,7 +44,7 @@ public class WxController {
      * @param postData     消息体
      * @return java.lang.String
      */
-    @RequestMapping(value = "/event")
+    @RequestMapping(value = "/qzcgt")
     public String event(@RequestParam("signature") String signature,
                         @RequestParam("timestamp") String timestamp,
                         @RequestParam("nonce") String nonce,
@@ -53,7 +58,15 @@ public class WxController {
 
         String result = null;
         try {
+            ContextInfo contextInfo = new ContextInfo();
+            contextInfo.setPlatform(WxZghEnum.CODE_1.getWxPlatform());
+            contextInfo.setAppType(WxZghEnum.CODE_1.getAppType());
+            threadLocalConfig.set(contextInfo);
+
             result = wxService.event(signature, timestamp, nonce, echostr, encryptType, msgSignature, openid, postData);
+
+
+            threadLocalConfig.remove();
         } catch (AesException e) {
             LOGGER.error("event error", e);
             result = WxConstant.SUCCESS;

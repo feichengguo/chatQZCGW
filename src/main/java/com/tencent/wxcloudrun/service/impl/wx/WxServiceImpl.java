@@ -2,14 +2,21 @@ package com.tencent.wxcloudrun.service.impl.wx;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.tencent.wxcloudrun.config.ThreadLocalConfig;
+import com.tencent.wxcloudrun.constant.WxConstant;
+import com.tencent.wxcloudrun.dto.ContextInfo;
 import com.tencent.wxcloudrun.dto.wx.WxEntranceRequest;
 import com.tencent.wxcloudrun.dto.wx.WxEntranceResponse;
+import com.tencent.wxcloudrun.model.AppInfo;
+import com.tencent.wxcloudrun.model.WxUserInfo;
+import com.tencent.wxcloudrun.service.AppInfoService;
 import com.tencent.wxcloudrun.service.aes.AesException;
 import com.tencent.wxcloudrun.service.aes.WXBizMsgCrypt;
 import com.tencent.wxcloudrun.service.wx.WxEventEntranceService;
 import com.tencent.wxcloudrun.service.wx.WxService;
 import com.tencent.wxcloudrun.utils.HttpUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,21 +29,15 @@ import java.util.Map;
 @Service
 public class WxServiceImpl implements WxService {
     private static final Logger LOGGER = LoggerFactory.getLogger(WxServiceImpl.class);
-    //第三方用户唯一凭证
-    public static final String APP_ID = "wx1xxxxxx441";
-    //公众号 令牌(Token)，可以优化到配置中心，这个是自定义的，与公众平台配置一致即可
-    public static final String MP_TOKEN = "zrj";
-    //公众号 消息加解密密钥 EncodingAESKey
-    public static final String MP_ENCODING_AES_KEY = "tVNZZP2WuEJxxxxxxAcnZxUAYHvKbl6";
-    //获取access_token填写client_credential
-    public static final String GRANT_TYPE = "client_credential";
-    //获取access_token接口地址
-    public static final String GET_ACCESS_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/token";
-    //
-    public static final String APPSECRET = "50_WeVdh9Flt0V5r040BB4M0jr7Db1rfts6YjbZELiSFrcworPhhSWYl6-FfDQqRywN6R-ydN5ejTXwmk7f5u6xKUy2_p1EX3Ku9omS-xfAOgjmGczWtgqFf8BZ-ykWA8gph23wWuSgOjuFLvzVENJiADALUQ";
 
     @Autowired
     private WxEventEntranceService wxEventEntranceService;
+
+    @Autowired
+    private ThreadLocalConfig threadLocalConfig;
+
+    @Autowired
+    private AppInfoService appInfoService;
 
     /**
      * 微信公众平台消息和事件推送接收服务
@@ -62,7 +63,14 @@ public class WxServiceImpl implements WxService {
     @Override
     public String event(String signature, String timestamp, String nonce, String echostr, String encryptType, String msgSignature, String openid, String postData) throws AesException {
         LOGGER.info("【微信公众平台消息事件接收服务】请求参数：signature：【{}】，timestamp：【{}】，nonce：【{}】，echostr：【{}】，encryptType：【{}】，msgSignature：【{}】，openid：【{}】，postData：【{}】", signature, timestamp, nonce, echostr, encryptType, msgSignature, openid, postData);
-
+        ContextInfo contextInfo = threadLocalConfig.get();
+        if (contextInfo == null) {
+            return Strings.EMPTY;
+        }
+        AppInfo appInfo = appInfoService.selectByUnionKey(contextInfo.getPlatform(), contextInfo.getAppType());
+        if (appInfo == null) {
+            return Strings.EMPTY;
+        }
         //1.配置url验证
         if (StringUtils.isEmpty(postData)) {
             LOGGER.info("【微信公众平台消息事件接收服务】消息体为空直接返回验证成功，返回随机数，echostr：【{}】", echostr);
@@ -81,7 +89,7 @@ public class WxServiceImpl implements WxService {
 
         //方式二：正常返回，超时会提示用户：该公众号提供的服务出现故障，请稍后再试
         //这个类是微信官网提供的解密类,需要用到消息校验Token 消息加密Key和服务平台appid
-        WXBizMsgCrypt pc = new WXBizMsgCrypt(MP_TOKEN, MP_ENCODING_AES_KEY, APP_ID);
+        WXBizMsgCrypt pc = new WXBizMsgCrypt(appInfo.getAesToken(), appInfo.getAesKey(), appInfo.getAppId());
         //加密模式：需要解密
         String xml = pc.decryptMsg(msgSignature, timestamp, nonce, postData);
 
@@ -102,16 +110,45 @@ public class WxServiceImpl implements WxService {
     @Override
     public String getAccessToken() {
         //构建请求参数
+        ContextInfo contextInfo = threadLocalConfig.get();
+        if (contextInfo == null) {
+            return Strings.EMPTY;
+        }
+        AppInfo appInfo = appInfoService.selectByUnionKey(contextInfo.getPlatform(), contextInfo.getAppType());
+        if (appInfo == null) {
+            return Strings.EMPTY;
+        }
+
+
         Map<String, String> paramMap = new HashMap<>(16);
-        paramMap.put("grant_type", GRANT_TYPE);
-        paramMap.put("appid", APP_ID);
-        paramMap.put("secret", APPSECRET);
-        LOGGER.info("【微信公众平台获取AccessToken接口】请求参数：【{}】，请求地址：【{}】", JSON.toJSONString(paramMap), GET_ACCESS_TOKEN_URL);
+        paramMap.put("grant_type", appInfo.getClientCredential());
+        paramMap.put("appid", appInfo.getAppId());
+        paramMap.put("secret", appInfo.getAppSecret());
+        LOGGER.info("【微信公众平台获取AccessToken接口】请求参数：【{}】，请求地址：【{}】", JSON.toJSONString(paramMap), WxConstant.GET_ACCESS_TOKEN_URL);
 
         //执行请求，获取结果
-        JSONObject resultJsonObject = HttpUtil.doGet(GET_ACCESS_TOKEN_URL, paramMap);
+        JSONObject resultJsonObject = HttpUtil.doGet(WxConstant.GET_ACCESS_TOKEN_URL, paramMap);
 
         LOGGER.info("【微信公众平台获取AccessT-oken接口】响应结果：【{}】", resultJsonObject);
         return resultJsonObject.getString("access_token");
+    }
+
+    @Override
+    public WxUserInfo getUserInfo(String openId, String token) {
+        //构建请求参数
+        if (StringUtils.isBlank(token)) {
+            return null;
+        }
+        Map<String, String> paramMap = new HashMap<>(16);
+        paramMap.put("access_token", token);
+        paramMap.put("openid", openId);
+        paramMap.put("lang", WxConstant.ZH_CN);
+        LOGGER.info("【微信公众平台获取AccessToken接口】请求参数：【{}】，请求地址：【{}】", JSON.toJSONString(paramMap), WxConstant.GET_ACCESS_TOKEN_URL);
+
+        //执行请求，获取结果
+        JSONObject resultJsonObject = HttpUtil.doGet(WxConstant.GET_USERINFO_URL, paramMap);
+
+        WxUserInfo userInfo = new WxUserInfo();
+        return userInfo;
     }
 }

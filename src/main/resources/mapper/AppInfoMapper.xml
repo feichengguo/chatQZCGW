@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tencent.wxcloudrun.dao.AppInfoMapper">
+
+    <resultMap id="BaseResultMap" type="com.tencent.wxcloudrun.model.AppInfo" >
+        <result column="id" property="id" />
+        <result column="platform" property="platform" />
+        <result column="app_type" property="appType" />
+        <result column="app_id" property="appId" />
+        <result column="app_secret" property="appSecret" />
+        <result column="client_credential" property="clientCredential" />
+        <result column="app_desc" property="appDesc" />
+        <result column="aes_key" property="aesKey" />
+        <result column="aes_token" property="aesToken" />
+        <result column="created" property="created" />
+        <result column="updated" property="updated" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+                platform,
+                app_type,
+                app_id,
+                app_secret,
+                client_credential,
+                app_desc,
+                aes_key,
+                aes_token,
+                created,
+                updated
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id" parameterType="com.tencent.wxcloudrun.model.AppInfo">
+        INSERT INTO app_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="null != platform and '' != platform">
+                platform,
+            </if>
+            <if test="null != appType and '' != appType">
+                app_type,
+            </if>
+            <if test="null != appId and '' != appId">
+                app_id,
+            </if>
+            <if test="null != appSecret and '' != appSecret">
+                app_secret,
+            </if>
+            <if test="null != aesKey and '' != aesKey">
+                aes_key,
+            </if>
+            <if test="null != aesToken and '' != aesToken">
+                aes_token,
+            </if>
+            <if test="null != clientCredential and '' != clientCredential">
+                client_credential,
+            </if>
+            <if test="null != appDesc and '' != appDesc">
+                app_desc,
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="null != platform and '' != platform">
+                #{platform},
+            </if>
+            <if test="null != appType and '' != appType">
+                #{appType},
+            </if>
+            <if test="null != appId and '' != appId">
+                #{appId},
+            </if>
+            <if test="null != appSecret and '' != appSecret">
+                #{appSecret},
+            </if>
+            <if test="null != aesKey and '' != aesKey">
+                #{aesKey},
+            </if>
+            <if test="null != aesToken and '' != aesToken">
+                #{aesToken},
+            </if>
+            <if test="null != clientCredential and '' != clientCredential">
+                #{clientCredential},
+            </if>
+            <if test="null != appDesc and '' != appDesc">
+                #{appDesc},
+            </if>
+
+        </trim>
+    </insert>
+
+    <delete id="delete" >
+        DELETE FROM app_info
+        WHERE id = #{id}
+    </delete>
+
+    <update id="update" parameterType="com.tencent.wxcloudrun.model.AppInfo">
+        UPDATE app_info
+        <set>
+            <if test="null != platform and '' != platform">platform = #{platform},</if>
+            <if test="null != appType and '' != appType">app_type = #{appType},</if>
+            <if test="null != appId and '' != appId">app_id = #{appId},</if>
+            <if test="null != appSecret and '' != appSecret">app_secret = #{appSecret},</if>
+            <if test="null != clientCredential and '' != clientCredential">client_credential = #{clientCredential},</if>
+            <if test="null != appDesc and '' != appDesc">app_desc = #{appDesc},</if>
+            <if test="null != aesKey and '' != aesKey">aes_key = #{aesKey},</if>
+            <if test="null != aesToken and '' != aesToken">aes_token = #{aesToken},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectByUnionKey" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM app_info
+        WHERE platform = #{platform} and app_type = #{appType}
+    </select>
+
+
+</mapper>
