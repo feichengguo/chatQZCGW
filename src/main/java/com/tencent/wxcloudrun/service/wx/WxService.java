@@ -15,4 +15,8 @@ public interface WxService {
      */
     public String event(String signature, String timestamp, String nonce, String echostr, String encryptType, String msgSignature, String openid, String postData) throws AesException;
 
+    /**
+     * 微信公众平台获取AccessToken
+     */
+    public String getAccessToken();
 }

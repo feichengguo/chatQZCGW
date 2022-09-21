@@ -1,14 +1,14 @@
 package com.tencent.wxcloudrun.service.impl.wx;
 
-import com.tencent.wxcloudrun.constant.WxConstant;
-import com.tencent.wxcloudrun.controller.WxController;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.tencent.wxcloudrun.dto.wx.WxEntranceRequest;
 import com.tencent.wxcloudrun.dto.wx.WxEntranceResponse;
 import com.tencent.wxcloudrun.service.aes.AesException;
 import com.tencent.wxcloudrun.service.aes.WXBizMsgCrypt;
 import com.tencent.wxcloudrun.service.wx.WxEventEntranceService;
 import com.tencent.wxcloudrun.service.wx.WxService;
-import com.tencent.wxcloudrun.utils.XmlBuilderUtil;
+import com.tencent.wxcloudrun.utils.HttpUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -27,6 +28,12 @@ public class WxServiceImpl implements WxService {
     public static final String MP_TOKEN = "zrj";
     //公众号 消息加解密密钥 EncodingAESKey
     public static final String MP_ENCODING_AES_KEY = "tVNZZP2WuEJxxxxxxAcnZxUAYHvKbl6";
+    //获取access_token填写client_credential
+    public static final String GRANT_TYPE = "client_credential";
+    //获取access_token接口地址
+    public static final String GET_ACCESS_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/token";
+    //
+    public static final String APPSECRET = "50_WeVdh9Flt0V5r040BB4M0jr7Db1rfts6YjbZELiSFrcworPhhSWYl6-FfDQqRywN6R-ydN5ejTXwmk7f5u6xKUy2_p1EX3Ku9omS-xfAOgjmGczWtgqFf8BZ-ykWA8gph23wWuSgOjuFLvzVENJiADALUQ";
 
     @Autowired
     private WxEventEntranceService wxEventEntranceService;
@@ -90,5 +97,21 @@ public class WxServiceImpl implements WxService {
         LOGGER.info("【微信公众平台消息事件接收服务成功】消息回复 密文：{}", response.getResult());
         return returnResult;
 
+    }
+
+    @Override
+    public String getAccessToken() {
+        //构建请求参数
+        Map<String, String> paramMap = new HashMap<>(16);
+        paramMap.put("grant_type", GRANT_TYPE);
+        paramMap.put("appid", APP_ID);
+        paramMap.put("secret", APPSECRET);
+        LOGGER.info("【微信公众平台获取AccessToken接口】请求参数：【{}】，请求地址：【{}】", JSON.toJSONString(paramMap), GET_ACCESS_TOKEN_URL);
+
+        //执行请求，获取结果
+        JSONObject resultJsonObject = HttpUtil.doGet(GET_ACCESS_TOKEN_URL, paramMap);
+
+        LOGGER.info("【微信公众平台获取AccessT-oken接口】响应结果：【{}】", resultJsonObject);
+        return resultJsonObject.getString("access_token");
     }
 }
