@@ -6,7 +6,7 @@ import com.tencent.wxcloudrun.dto.ContextInfo;
 import com.tencent.wxcloudrun.dto.wx.WxEntranceRequest;
 import com.tencent.wxcloudrun.model.AppInfo;
 import com.tencent.wxcloudrun.model.WxUserInfo;
-import com.tencent.wxcloudrun.service.AppInfoService;
+import com.tencent.wxcloudrun.service.entity.AppInfoService;
 import com.tencent.wxcloudrun.service.impl.wx.WxEventEntranceServiceImpl;
 import com.tencent.wxcloudrun.service.thread.AsyncService;
 import org.junit.Before;

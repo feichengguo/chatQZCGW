@@ -2,11 +2,10 @@ package com.tencent.wxcloudrun.service.impl.wx;
 
 import com.tencent.wxcloudrun.Enum.WxNewsEnum;
 import com.tencent.wxcloudrun.config.ThreadLocalConfig;
-import com.tencent.wxcloudrun.constant.WxConstant;
 import com.tencent.wxcloudrun.dto.ContextInfo;
 import com.tencent.wxcloudrun.dto.wx.WxNewsInfo;
 import com.tencent.wxcloudrun.model.WxUserInfo;
-import com.tencent.wxcloudrun.service.WxUserInfoService;
+import com.tencent.wxcloudrun.service.entity.WxUserInfoService;
 import com.tencent.wxcloudrun.service.thread.AsyncService;
 import com.tencent.wxcloudrun.service.wx.WxNewsHandler;
 import org.springframework.beans.factory.annotation.Autowired;

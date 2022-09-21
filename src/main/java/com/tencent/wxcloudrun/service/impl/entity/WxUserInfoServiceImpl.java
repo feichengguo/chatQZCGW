@@ -1,8 +1,8 @@
-package com.tencent.wxcloudrun.service.impl;
+package com.tencent.wxcloudrun.service.impl.entity;
 
 import com.tencent.wxcloudrun.dao.WxUserInfoMapper;
 import com.tencent.wxcloudrun.model.WxUserInfo;
-import com.tencent.wxcloudrun.service.WxUserInfoService;
+import com.tencent.wxcloudrun.service.entity.WxUserInfoService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

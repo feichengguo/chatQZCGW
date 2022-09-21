@@ -1,7 +1,7 @@
 package com.tencent.wxcloudrun.service.impl.thread;
 
 import com.tencent.wxcloudrun.model.WxUserInfo;
-import com.tencent.wxcloudrun.service.WxUserInfoService;
+import com.tencent.wxcloudrun.service.entity.WxUserInfoService;
 import com.tencent.wxcloudrun.service.thread.AsyncService;
 import com.tencent.wxcloudrun.service.wx.WxService;
 import org.apache.commons.lang3.StringUtils;

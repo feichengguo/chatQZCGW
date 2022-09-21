@@ -9,7 +9,7 @@ import com.tencent.wxcloudrun.dto.wx.WxEntranceRequest;
 import com.tencent.wxcloudrun.dto.wx.WxEntranceResponse;
 import com.tencent.wxcloudrun.model.AppInfo;
 import com.tencent.wxcloudrun.model.WxUserInfo;
-import com.tencent.wxcloudrun.service.AppInfoService;
+import com.tencent.wxcloudrun.service.entity.AppInfoService;
 import com.tencent.wxcloudrun.service.aes.AesException;
 import com.tencent.wxcloudrun.service.aes.WXBizMsgCrypt;
 import com.tencent.wxcloudrun.service.wx.WxEventEntranceService;

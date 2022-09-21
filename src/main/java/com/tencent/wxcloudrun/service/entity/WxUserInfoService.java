@@ -1,4 +1,4 @@
-package com.tencent.wxcloudrun.service;
+package com.tencent.wxcloudrun.service.entity;
 
 import com.tencent.wxcloudrun.model.WxUserInfo;
 

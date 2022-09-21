@@ -1,8 +1,8 @@
-package com.tencent.wxcloudrun.service.impl;
+package com.tencent.wxcloudrun.service.impl.entity;
 
 import com.tencent.wxcloudrun.dao.AppInfoMapper;
 import com.tencent.wxcloudrun.model.AppInfo;
-import com.tencent.wxcloudrun.service.AppInfoService;
+import com.tencent.wxcloudrun.service.entity.AppInfoService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
