@@ -3,6 +3,7 @@ package com.tencent.wxcloudrun.service.impl.wx;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.tencent.wxcloudrun.config.ThreadLocalConfig;
+import com.tencent.wxcloudrun.constant.RedisPrefixConstant;
 import com.tencent.wxcloudrun.constant.WxConstant;
 import com.tencent.wxcloudrun.dto.ContextInfo;
 import com.tencent.wxcloudrun.dto.wx.WxEntranceRequest;
@@ -15,6 +16,7 @@ import com.tencent.wxcloudrun.service.aes.WXBizMsgCrypt;
 import com.tencent.wxcloudrun.service.wx.WxEventEntranceService;
 import com.tencent.wxcloudrun.service.wx.WxService;
 import com.tencent.wxcloudrun.utils.HttpUtil;
+import com.tencent.wxcloudrun.utils.RedisUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
@@ -38,6 +40,9 @@ public class WxServiceImpl implements WxService {
 
     @Autowired
     private AppInfoService appInfoService;
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
      * 微信公众平台消息和事件推送接收服务
@@ -118,7 +123,11 @@ public class WxServiceImpl implements WxService {
         if (appInfo == null) {
             return Strings.EMPTY;
         }
-
+        String tokenKey = RedisPrefixConstant.WX_TOKEN + contextInfo.getPlatform() + RedisPrefixConstant.SPLIT + contextInfo.getAppType();
+        String accessToken = redisUtil.get(tokenKey);
+        if (StringUtils.isNotBlank(accessToken)) {
+            return accessToken;
+        }
 
         Map<String, String> paramMap = new HashMap<>(16);
         paramMap.put("grant_type", appInfo.getClientCredential());
@@ -130,7 +139,10 @@ public class WxServiceImpl implements WxService {
         JSONObject resultJsonObject = HttpUtil.doGet(WxConstant.GET_ACCESS_TOKEN_URL, paramMap);
 
         LOGGER.info("【微信公众平台获取AccessT-oken接口】响应结果：【{}】", resultJsonObject);
-        return resultJsonObject.getString("access_token");
+        accessToken = resultJsonObject.getString("access_token");
+
+        redisUtil.setex(tokenKey,accessToken,RedisPrefixConstant.WX_TOKEN_SECONDS);
+        return accessToken;
     }
 
     @Override

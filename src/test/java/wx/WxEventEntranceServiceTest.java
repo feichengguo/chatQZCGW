@@ -9,6 +9,7 @@ import com.tencent.wxcloudrun.model.WxUserInfo;
 import com.tencent.wxcloudrun.service.entity.AppInfoService;
 import com.tencent.wxcloudrun.service.impl.wx.WxEventEntranceServiceImpl;
 import com.tencent.wxcloudrun.service.thread.AsyncService;
+import com.tencent.wxcloudrun.utils.RedisUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +31,9 @@ public class WxEventEntranceServiceTest {
 
     @Resource(name = "asyncWxServiceImpl")
     private AsyncService asyncWxService;
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     @Before
     public void init() {
@@ -86,6 +90,26 @@ public class WxEventEntranceServiceTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void testRedis() {
+        redisUtil.setex("key1", "1", 2);
+
+        System.out.println(redisUtil.get("key1"));
+        try {
+            Thread.sleep(1002);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        redisUtil.setex("key1", "2", 2);
+        try {
+            Thread.sleep(1002);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println(redisUtil.get("key1"));
+
     }
 
 }

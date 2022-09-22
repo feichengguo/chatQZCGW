@@ -5,20 +5,20 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ThreadLocalConfig {
-    private static ThreadLocal<ContextInfo> mapThreadLocal = new ThreadLocal<>();
+    private static ThreadLocal<ContextInfo> threadLocal = new ThreadLocal<>();
 
     //获取当前线程的存的变量
     public ContextInfo get() {
-        return mapThreadLocal.get();
+        return threadLocal.get();
     }
 
     //设置当前线程的存的变量
     public void set(ContextInfo contextInfo) {
-        this.mapThreadLocal.set(contextInfo);
+        this.threadLocal.set(contextInfo);
     }
 
     //移除当前线程的存的变量
     public void remove() {
-        this.mapThreadLocal.remove();
+        this.threadLocal.remove();
     }
 }
