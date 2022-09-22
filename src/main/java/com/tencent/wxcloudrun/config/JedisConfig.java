@@ -31,7 +31,6 @@ public class JedisConfig {
                                @Value("${jedis.pool.password}") String password,
                                @Value("${jedis.pool.port}") int port,
                                @Value("${jedis.pool.timeout}") int timeout, JedisPoolConfig jedisPoolConfig) {
-        log.info("=====创建JedisPool连接池=====");
         if (StringUtils.isNotEmpty(password)) {
             return new JedisPool(jedisPoolConfig, host, port, timeout, password);
         }
